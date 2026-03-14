@@ -23,3 +23,6 @@ data/minimap.json
 # ignoring shell files (for now)
 test.sh
 get.sh
+/test.sh
+/get.sh
+*.sh
