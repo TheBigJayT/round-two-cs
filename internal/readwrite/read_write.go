@@ -168,12 +168,14 @@ func ReadDemo(filename string) error {
 func ExtractKillsData(filename string) error {
 	f, err := os.Open(filename)
 	if err != nil {
+		log.Fatalln("error opening", err)
 		return err
 	}
 	defer f.Close()
 
 	t, err := times.Stat(filename)
 	if err != nil {
+		log.Fatalln("error stating", err)
 		return err
 	}
 	mod_time := t.ModTime()
@@ -234,8 +236,14 @@ func ExtractKillsData(filename string) error {
 
 		return idStr
 	}
+
 	var matchStarted bool
-	demo.RegisterEventHandler(func(e events.MatchStart) {
+
+	demo.RegisterNetMessageHandler(func(m *msg.CDemoFileInfo) {
+		fmt.Println(m.GetGameInfo())
+	})
+	// events.MatchStart is not available in every demo thus events.AnnouncementMatchStarted is used instead...
+	demo.RegisterEventHandler(func(e events.AnnouncementMatchStarted) {
 		matchStarted = true
 	})
 
@@ -245,7 +253,7 @@ func ExtractKillsData(filename string) error {
 		selfKill := killer == dead
 		if matchStarted {
 
-			if killer != nil && dead != nil && !selfKill {
+			if killer != nil && dead != nil && !selfKill && killer.Team != dead.Team {
 				weaponName := ""
 				if e.Weapon != nil {
 					weaponName = e.Weapon.String()
@@ -328,7 +336,9 @@ func ExtractKillsData(filename string) error {
 	}
 
 	for mapKey, killDataList := range playerKills {
+
 		parts := strings.Split(mapKey, "|")
+
 		playerID := parts[0]   // SteamID32 string
 		playerName := parts[1] // human-readable name
 		teamID := parts[2]
@@ -448,6 +458,9 @@ func PrintDemo(filename string) error {
 	})
 	demo.RegisterEventHandler(func(e events.MatchStart) {
 		fmt.Printf("Match started\n\n")
+	})
+	demo.RegisterEventHandler(func(e events.AnnouncementMatchStarted) {
+		fmt.Println("ANNOUNCEMENT MATCH STARTED")
 	})
 	demo.RegisterEventHandler(func(e events.OtherDeath) {
 		fmt.Printf("OTHER DEATH %s killed %s\n", e.Killer.Name, e.OtherType)

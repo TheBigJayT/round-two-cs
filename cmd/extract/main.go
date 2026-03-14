@@ -24,7 +24,7 @@ func main() {
 	dateFlag := flag.String("date", "", "Exact date to filter by (YYYY-MM-DD)")
 	dateFromFlag := flag.String("date-from", "", "Start of date range, inclusive (YYYY-MM-DD)")
 	dateToFlag := flag.String("date-to", "", "End of date range, inclusive (YYYY-MM-DD)")
-	outputKills := flag.Bool("list", false, "Print matching kills to stdout")
+	outputKills := flag.Bool("list", true, "Print matching kills to stdout")
 	isNewFeature := flag.Bool("new", false, "INTERNALLY used for testing before implementing")
 	flag.Parse()
 

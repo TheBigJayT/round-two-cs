@@ -7,3 +7,4 @@ go build cmd/extract/main.go
 ./main -mode=debug -demo=$1 > debug.txt
 ./main -list > read.txt
 cat read.txt
+
