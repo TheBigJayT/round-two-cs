@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+option go_package = "github.com/TheBigJayT/round-two-cs/protos";
+
+message Position {
+    float X = 1;
+    float Y = 2;
+    float Z = 3;
+    int32 ID32 = 4;
+    string KillerName = 5;
+    string DeadName = 6;
+    float DeadX = 7;
+    float DeadY = 8;
+    float DeadZ = 9;
+}
+
+message Positions {
+    repeated Position pos = 1;
+}
