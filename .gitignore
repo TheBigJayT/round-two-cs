@@ -16,13 +16,5 @@ data/minimap.json
 
 # ignoring executables
 /main
+/round-two-cs
 
-
-# ignoring silly markdown files
-
-# ignoring shell files (for now)
-test.sh
-get.sh
-/test.sh
-/get.sh
-*.sh

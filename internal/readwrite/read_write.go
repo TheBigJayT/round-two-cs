@@ -428,6 +428,9 @@ func LoadMatches(indexFile string) ([]MatchMetadata, error) {
 }
 
 func PrintDemo(filename string) error {
+	var killCount int
+	var deathCount int
+
 	f, err := os.Open(filename)
 	if err != nil {
 		return err
@@ -447,13 +450,38 @@ func PrintDemo(filename string) error {
 		fmt.Printf("Round %d started\n\n", gs.TotalRoundsPlayed()+1)
 	})
 	demo.RegisterEventHandler(func(e events.Kill) {
-		if e.Killer != nil && e.Victim != nil {
-			fmt.Printf("%s killed %s with %s\n", e.Killer.Name, e.Victim.Name, e.Weapon)
-		} else if e.Killer == nil && e.Victim != nil {
-			fmt.Printf("Killer does not exist but Victim does %s\n", e.Victim.Name)
+		var printString string
+		fmt.Printf("KILL\t")
+		if e.Killer == nil {
+			printString = fmt.Sprint(printString, "\x1b[31mnil killer\x1b[0m")
+		} else {
+			printString = fmt.Sprint(printString, e.Killer)
+			killCount++
 		}
+		printString = fmt.Sprint(printString, " killed ")
+		if e.Victim == nil {
+			printString = fmt.Sprint(printString, "nil victim")
+		} else {
+			printString = fmt.Sprint(printString, e.Victim)
+			deathCount++
+		}
+		printString = fmt.Sprint(printString, " with ")
+		if e.Weapon == nil {
+			printString = fmt.Sprint(printString, "nil weapon")
+		} else {
+			printString = fmt.Sprint(printString, e.Weapon)
+		}
+		printString = fmt.Sprint(printString, "\n")
+		fmt.Print(printString)
+		// if e.Killer != nil && e.Victim != nil {
+		// 	fmt.Printf("%s killed %s with %s\n", e.Killer.Name, e.Victim.Name, e.Weapon)
+		// } else if e.Killer == nil && e.Victim != nil {
+		// 	fmt.Printf("Killer does not exist but Victim does %s\n", e.Victim.Name)
+		// }
+
 	})
 	demo.RegisterEventHandler(func(e events.BombEvent) {
+		fmt.Printf("BOMB\t")
 		fmt.Printf("Bomb event at %s\n", string(e.Site))
 	})
 	demo.RegisterEventHandler(func(e events.MatchStart) {
@@ -469,9 +497,11 @@ func PrintDemo(filename string) error {
 		fmt.Printf("\nRound end\n")
 	})
 	demo.RegisterEventHandler(func(e events.BombPlanted) {
+		fmt.Printf("BOMB\t")
 		fmt.Printf("Bomb planted at %s by %s\n", string(e.Site), string(e.Player.Name))
 	})
 	demo.RegisterEventHandler(func(e events.BombExplode) {
+		fmt.Printf("BOMB\t")
 		fmt.Printf("Bomb exploded at %s by %s	\n", string(e.Site), string(e.Player.Name))
 	})
 
@@ -480,5 +510,8 @@ func PrintDemo(filename string) error {
 		return err
 	}
 	// fmt.Println(mapMetadata.PosX, mapMetadata.PosY, mapMetadata.Scale)
+	fmt.Printf("\x1b[38;5;196m%20s\t%-6d\x1b[0m\n", "Kill Count: ", killCount)
+	fmt.Printf("\x1b[38;5;220m%20s\t%-6d\x1b[0m\n", "Death Count: ", deathCount)
+
 	return nil
 }
