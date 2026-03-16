@@ -26,6 +26,7 @@ func main() {
 	dateToFlag := flag.String("date-to", "", "End of date range, inclusive (YYYY-MM-DD)")
 	outputKills := flag.Bool("list", true, "Print matching kills to stdout")
 	isNewFeature := flag.Bool("new", false, "INTERNALLY used for testing before implementing")
+	showPositions := flag.Bool("pos", false, "Show positions (mainly for debugging)")
 	flag.Parse()
 
 	if *isNewFeature {
@@ -222,6 +223,10 @@ func main() {
 						}
 						distance := victimV.Distance(killerV)
 						fmt.Printf("%-20s killed\t%-20s using %-20s at %-20f units\n", y.GetKillerName(), y.GetVictimName(), y.GetWeapon(), distance)
+						if *showPositions {
+							fmt.Println(killerV)
+						}
+
 					}
 				}
 				fmt.Println(strings.Repeat("_", 110))

@@ -18,3 +18,5 @@ data/minimap.json
 /main
 /round-two-cs
 
+# other ignores
+backup.md

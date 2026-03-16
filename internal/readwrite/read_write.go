@@ -36,11 +36,11 @@ type PlayerInfo struct {
 }
 
 type MapInfo struct {
-	PosX   int `json:"pos_x"`
-	PosY   int `json:"pos_y"`
-	Scale  int `json:"scale"`
-	Rotate int `json:"rotate"`
-	Zoom   int `json:"zoom"`
+	PosX   int     `json:"pos_x"`
+	PosY   int     `json:"pos_y"`
+	Scale  float32 `json:"scale"`
+	Rotate int     `json:"rotate"`
+	Zoom   int     `json:"zoom"`
 }
 
 // PlayerMetadata is the per-player record inside MatchMetadata.Players.
@@ -60,6 +60,8 @@ type MatchMetadata struct {
 }
 
 func TestReadMapInfo() {
+	setPosX := -2009
+	setPosY := 369
 	maps := make(map[string]MapInfo)
 
 	data, err := os.ReadFile(mapsFile)
@@ -68,6 +70,11 @@ func TestReadMapInfo() {
 	}
 	for k, v := range maps {
 		fmt.Println(k, v)
+		// for pos = pos.X -> 0
+		// |pos| slightly > |pos.X| -> slightly larger than 0.
+		fmt.Println((float32(setPosX - v.PosX)) / v.Scale)
+		fmt.Println((float32(v.PosY - setPosY)) / v.Scale)
+
 	}
 }
 
