@@ -30,8 +30,12 @@ func main() {
 	flag.Parse()
 
 	if *isNewFeature {
-		// Do new feature
-		rw.TestReadMapInfo()
+		mapFilter := strings.ToLower(*mapFlag)
+		info, err := rw.GetMapInfo(mapFilter)
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Println(info.PosX, info.PosY, info.Scale, info.Rotate)
 		return
 	}
 
@@ -222,6 +226,7 @@ func main() {
 							Z: float64(y.GetVictimZ()),
 						}
 						distance := victimV.Distance(killerV)
+						fmt.Println("Pixel: ", y.GetKillerXPixel(), y.GetKillerYPixel())
 						fmt.Printf("%-20s killed\t%-20s using %-20s at %-20f units\n", y.GetKillerName(), y.GetVictimName(), y.GetWeapon(), distance)
 						if *showPositions {
 							fmt.Println(killerV)

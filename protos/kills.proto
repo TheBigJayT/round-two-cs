@@ -8,12 +8,16 @@ message KillData {
     float KillerX = 3;
     float KillerY = 4;
     float KillerZ = 5;
+    int32 KillerXPixel = 16;
+    int32 KillerYPixel = 17;
 
     string VictimName = 6;
     int32 VictimID = 7;
     float VictimX = 8;
     float VictimY = 9;
     float VictimZ = 10;
+    int32 VictimXPixel = 18;
+    int32 VictimYPixel = 19;
 
     string Weapon = 11;
     bool IsHeadshot = 12;

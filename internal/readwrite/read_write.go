@@ -4,6 +4,7 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -38,6 +39,8 @@ type PlayerInfo struct {
 type MapInfo struct {
 	PosX   int     `json:"pos_x"`
 	PosY   int     `json:"pos_y"`
+	PixelX int     `json:"pixel_x"`
+	PixelY int     `json:"pixel_y"`
 	Scale  float32 `json:"scale"`
 	Rotate int     `json:"rotate"`
 	Zoom   int     `json:"zoom"`
@@ -59,9 +62,9 @@ type MatchMetadata struct {
 	Players map[string]PlayerMetadata `json:"players"` // key = SteamID32 string
 }
 
+var MapNotFound = errors.New("Map info not found")
+
 func TestReadMapInfo() {
-	setPosX := -2009
-	setPosY := 369
 	maps := make(map[string]MapInfo)
 
 	data, err := os.ReadFile(mapsFile)
@@ -70,12 +73,40 @@ func TestReadMapInfo() {
 	}
 	for k, v := range maps {
 		fmt.Println(k, v)
-		// for pos = pos.X -> 0
-		// |pos| slightly > |pos.X| -> slightly larger than 0.
-		fmt.Println((float32(setPosX - v.PosX)) / v.Scale)
-		fmt.Println((float32(v.PosY - setPosY)) / v.Scale)
+		var pixel float32
+		if k == "de_ancient" {
+			for pixel < 1024 {
+				// posx := v.Scale*pixel + float32(v.PosX)
+				// fmt.Println(pixel, ":", posx)
+				// pixel++
+				posy := -(v.Scale*pixel - float32(v.PosY))
+				fmt.Println(pixel, ":", posy)
+				pixel++
+			}
+		}
 
 	}
+
+}
+
+// GetMapInfo accepts a map name in the form "de_XXXXX" or "XXXXX" as input
+// and returns a MapInfo struct and an error.
+func GetMapInfo(mapName string) (mapInfo MapInfo, err error) {
+	mapName = strings.TrimPrefix(strings.ToLower(mapName), "de_")
+	maps := make(map[string]MapInfo)
+	data, err := os.ReadFile(mapsFile)
+	if err != nil {
+		return MapInfo{}, err
+	} else {
+		json.Unmarshal(data, &maps)
+	}
+	for name, info := range maps {
+		name = strings.TrimPrefix(name, "de_")
+		if name == mapName {
+			return info, nil
+		}
+	}
+	return MapInfo{}, MapNotFound
 }
 
 func ReadPos(filename string) (*protos.Positions, error) {
@@ -254,6 +285,16 @@ func ExtractKillsData(filename string) error {
 		matchStarted = true
 	})
 
+	var mapName string
+	var mapInfo MapInfo
+	demo.RegisterNetMessageHandler(func(m *msg.CDemoFileHeader) {
+		mapName = m.GetMapName()
+		mapInfo, err = GetMapInfo(mapName)
+		if err != nil {
+			log.Fatal(err)
+		}
+	})
+
 	demo.RegisterEventHandler(func(e events.Kill) {
 		killer := e.Killer
 		dead := e.Victim
@@ -294,6 +335,8 @@ func ExtractKillsData(filename string) error {
 					KillerX:      float32(killer.Position().X),
 					KillerY:      float32(killer.Position().Y),
 					KillerZ:      float32(killer.Position().Z),
+					KillerXPixel: int32(float32(killer.Position().X-float64(mapInfo.PosX)) / mapInfo.Scale),
+					KillerYPixel: int32(float32(float64(mapInfo.PosY)-killer.Position().Y) / mapInfo.Scale),
 					VictimName:   dead.Name,
 					VictimID:     int32(dead.SteamID32()),
 					VictimX:      float32(dead.Position().X),
@@ -316,10 +359,7 @@ func ExtractKillsData(filename string) error {
 			}
 		}
 	})
-	var mapName string
-	demo.RegisterNetMessageHandler(func(m *msg.CDemoFileHeader) {
-		mapName = m.GetMapName()
-	})
+
 	err = demo.ParseToEnd()
 	if err != nil {
 		return err
@@ -435,6 +475,7 @@ func LoadMatches(indexFile string) ([]MatchMetadata, error) {
 }
 
 func PrintDemo(filename string) error {
+	var matchStarted bool
 	var killCount int
 	var deathCount int
 
@@ -458,35 +499,39 @@ func PrintDemo(filename string) error {
 	})
 	demo.RegisterEventHandler(func(e events.Kill) {
 		var printString string
-		fmt.Printf("KILL\t")
-		if e.Killer == nil {
-			printString = fmt.Sprint(printString, "\x1b[31mnil killer\x1b[0m")
-		} else {
-			printString = fmt.Sprint(printString, e.Killer)
-			killCount++
-		}
-		printString = fmt.Sprint(printString, " killed ")
-		if e.Victim == nil {
-			printString = fmt.Sprint(printString, "nil victim")
-		} else {
-			printString = fmt.Sprint(printString, e.Victim)
-			deathCount++
-		}
-		printString = fmt.Sprint(printString, " with ")
-		if e.Weapon == nil {
-			printString = fmt.Sprint(printString, "nil weapon")
-		} else {
-			printString = fmt.Sprint(printString, e.Weapon)
-		}
-		printString = fmt.Sprint(printString, "\n")
-		fmt.Print(printString)
-		// if e.Killer != nil && e.Victim != nil {
-		// 	fmt.Printf("%s killed %s with %s\n", e.Killer.Name, e.Victim.Name, e.Weapon)
-		// } else if e.Killer == nil && e.Victim != nil {
-		// 	fmt.Printf("Killer does not exist but Victim does %s\n", e.Victim.Name)
-		// }
+		if matchStarted {
 
+			fmt.Printf("KILL\t")
+			if e.Killer == nil {
+				printString = fmt.Sprint(printString, "\x1b[31mnil killer\x1b[0m")
+			} else {
+				printString = fmt.Sprint(printString, e.Killer)
+				killCount++
+			}
+			printString = fmt.Sprint(printString, " killed ")
+			if e.Victim == nil {
+				printString = fmt.Sprint(printString, "nil victim")
+			} else {
+				printString = fmt.Sprint(printString, e.Victim)
+				deathCount++
+			}
+			printString = fmt.Sprint(printString, " with ")
+			if e.Weapon == nil {
+				printString = fmt.Sprint(printString, "nil weapon")
+			} else {
+				printString = fmt.Sprint(printString, e.Weapon)
+			}
+			printString = fmt.Sprint(printString, "\n")
+			fmt.Print(printString)
+			// if e.Killer != nil && e.Victim != nil {
+			// 	fmt.Printf("%s killed %s with %s\n", e.Killer.Name, e.Victim.Name, e.Weapon)
+			// } else if e.Killer == nil && e.Victim != nil {
+			// 	fmt.Printf("Killer does not exist but Victim does %s\n", e.Victim.Name)
+			// }
+
+		}
 	})
+
 	demo.RegisterEventHandler(func(e events.BombEvent) {
 		fmt.Printf("BOMB\t")
 		fmt.Printf("Bomb event at %s\n", string(e.Site))
@@ -495,6 +540,7 @@ func PrintDemo(filename string) error {
 		fmt.Printf("Match started\n\n")
 	})
 	demo.RegisterEventHandler(func(e events.AnnouncementMatchStarted) {
+		matchStarted = true
 		fmt.Println("ANNOUNCEMENT MATCH STARTED")
 	})
 	demo.RegisterEventHandler(func(e events.OtherDeath) {
@@ -517,6 +563,9 @@ func PrintDemo(filename string) error {
 		return err
 	}
 	// fmt.Println(mapMetadata.PosX, mapMetadata.PosY, mapMetadata.Scale)
+	fmt.Printf("\nThere are still some problems with this debug command.\n" +
+		"It would take some testing to determine what should and\n" +
+		"shouldn't be a kill/death, time I'd rather spend elsewhere.\n\n")
 	fmt.Printf("\x1b[38;5;196m%20s\t%-6d\x1b[0m\n", "Kill Count: ", killCount)
 	fmt.Printf("\x1b[38;5;220m%20s\t%-6d\x1b[0m\n", "Death Count: ", deathCount)
 

@@ -28,11 +28,15 @@ type KillData struct {
 	KillerX       float32                `protobuf:"fixed32,3,opt,name=KillerX,proto3" json:"KillerX,omitempty"`
 	KillerY       float32                `protobuf:"fixed32,4,opt,name=KillerY,proto3" json:"KillerY,omitempty"`
 	KillerZ       float32                `protobuf:"fixed32,5,opt,name=KillerZ,proto3" json:"KillerZ,omitempty"`
+	KillerXPixel  int32                  `protobuf:"varint,16,opt,name=KillerXPixel,proto3" json:"KillerXPixel,omitempty"`
+	KillerYPixel  int32                  `protobuf:"varint,17,opt,name=KillerYPixel,proto3" json:"KillerYPixel,omitempty"`
 	VictimName    string                 `protobuf:"bytes,6,opt,name=VictimName,proto3" json:"VictimName,omitempty"`
 	VictimID      int32                  `protobuf:"varint,7,opt,name=VictimID,proto3" json:"VictimID,omitempty"`
 	VictimX       float32                `protobuf:"fixed32,8,opt,name=VictimX,proto3" json:"VictimX,omitempty"`
 	VictimY       float32                `protobuf:"fixed32,9,opt,name=VictimY,proto3" json:"VictimY,omitempty"`
 	VictimZ       float32                `protobuf:"fixed32,10,opt,name=VictimZ,proto3" json:"VictimZ,omitempty"`
+	VictimXPixel  int32                  `protobuf:"varint,18,opt,name=VictimXPixel,proto3" json:"VictimXPixel,omitempty"`
+	VictimYPixel  int32                  `protobuf:"varint,19,opt,name=VictimYPixel,proto3" json:"VictimYPixel,omitempty"`
 	Weapon        string                 `protobuf:"bytes,11,opt,name=Weapon,proto3" json:"Weapon,omitempty"`
 	IsHeadshot    bool                   `protobuf:"varint,12,opt,name=IsHeadshot,proto3" json:"IsHeadshot,omitempty"`
 	RoundNum      int32                  `protobuf:"varint,13,opt,name=RoundNum,proto3" json:"RoundNum,omitempty"`
@@ -107,6 +111,20 @@ func (x *KillData) GetKillerZ() float32 {
 	return 0
 }
 
+func (x *KillData) GetKillerXPixel() int32 {
+	if x != nil {
+		return x.KillerXPixel
+	}
+	return 0
+}
+
+func (x *KillData) GetKillerYPixel() int32 {
+	if x != nil {
+		return x.KillerYPixel
+	}
+	return 0
+}
+
 func (x *KillData) GetVictimName() string {
 	if x != nil {
 		return x.VictimName
@@ -138,6 +156,20 @@ func (x *KillData) GetVictimY() float32 {
 func (x *KillData) GetVictimZ() float32 {
 	if x != nil {
 		return x.VictimZ
+	}
+	return 0
+}
+
+func (x *KillData) GetVictimXPixel() int32 {
+	if x != nil {
+		return x.VictimXPixel
+	}
+	return 0
+}
+
+func (x *KillData) GetVictimYPixel() int32 {
+	if x != nil {
+		return x.VictimYPixel
 	}
 	return 0
 }
@@ -225,7 +257,7 @@ var File_protos_kills_proto protoreflect.FileDescriptor
 
 const file_protos_kills_proto_rawDesc = "" +
 	"\n" +
-	"\x12protos/kills.proto\"\xb6\x03\n" +
+	"\x12protos/kills.proto\"\xc6\x04\n" +
 	"\bKillData\x12\x1e\n" +
 	"\n" +
 	"KillerName\x18\x01 \x01(\tR\n" +
@@ -233,7 +265,9 @@ const file_protos_kills_proto_rawDesc = "" +
 	"\bKillerID\x18\x02 \x01(\x05R\bKillerID\x12\x18\n" +
 	"\aKillerX\x18\x03 \x01(\x02R\aKillerX\x12\x18\n" +
 	"\aKillerY\x18\x04 \x01(\x02R\aKillerY\x12\x18\n" +
-	"\aKillerZ\x18\x05 \x01(\x02R\aKillerZ\x12\x1e\n" +
+	"\aKillerZ\x18\x05 \x01(\x02R\aKillerZ\x12\"\n" +
+	"\fKillerXPixel\x18\x10 \x01(\x05R\fKillerXPixel\x12\"\n" +
+	"\fKillerYPixel\x18\x11 \x01(\x05R\fKillerYPixel\x12\x1e\n" +
 	"\n" +
 	"VictimName\x18\x06 \x01(\tR\n" +
 	"VictimName\x12\x1a\n" +
@@ -241,7 +275,9 @@ const file_protos_kills_proto_rawDesc = "" +
 	"\aVictimX\x18\b \x01(\x02R\aVictimX\x12\x18\n" +
 	"\aVictimY\x18\t \x01(\x02R\aVictimY\x12\x18\n" +
 	"\aVictimZ\x18\n" +
-	" \x01(\x02R\aVictimZ\x12\x16\n" +
+	" \x01(\x02R\aVictimZ\x12\"\n" +
+	"\fVictimXPixel\x18\x12 \x01(\x05R\fVictimXPixel\x12\"\n" +
+	"\fVictimYPixel\x18\x13 \x01(\x05R\fVictimYPixel\x12\x16\n" +
 	"\x06Weapon\x18\v \x01(\tR\x06Weapon\x12\x1e\n" +
 	"\n" +
 	"IsHeadshot\x18\f \x01(\bR\n" +
