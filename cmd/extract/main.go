@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	filters "github.com/TheBigJayT/round-two-cs/internal/filters"
 	rw "github.com/TheBigJayT/round-two-cs/internal/readwrite"
 
 	"github.com/golang/geo/r3"
@@ -30,12 +31,8 @@ func main() {
 	flag.Parse()
 
 	if *isNewFeature {
-		mapFilter := strings.ToLower(*mapFlag)
-		info, err := rw.GetMapInfo(mapFilter)
-		if err != nil {
-			log.Fatal(err)
-		}
-		fmt.Println(info.PosX, info.PosY, info.Scale, info.Rotate)
+		filter := filters.Filter{Player: "niko"}
+		filter.ResolveFilter()
 		return
 	}
 

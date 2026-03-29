@@ -7,6 +7,9 @@
 # ignoring all protobuf .pb
 *.pb
 
+# ignoring pings
+*.png
+
 # ignoring 
 data/matches.jsonl
 data/players.json
