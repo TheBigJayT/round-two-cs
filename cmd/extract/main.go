@@ -31,7 +31,7 @@ func main() {
 	flag.Parse()
 
 	if *isNewFeature {
-		filter := filters.Filter{Player: "niko"}
+		filter := filters.Filter{}
 		filter.ResolveFilter()
 		return
 	}
