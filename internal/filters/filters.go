@@ -39,6 +39,8 @@ func (f Filter) ResolveFilter() {
 		ans = ""
 	}
 
+	// I am going to commit this implementation BUT...
+	// IT IS REALLY REALLY REALLY BAD AND SLOW AND BAD
 	for k, v := range new {
 		if ans != "" {
 
