@@ -398,7 +398,32 @@ func ExtractKillsData(filename string) error {
 		}
 
 		// Format: data/kills/{YYYYMMDD_HHMMSS}_{demoname}_team-{teamID}_side-{side}_player-{steamID32}.pb
-		pbFilename := filepath.Join(killsDir, fmt.Sprintf("%s_%s_team-%s_side-%s_player-%s.pb", timestampPrefix, basename, teamID, side, playerID))
+		mapNameTrim, _ := strings.CutPrefix(mapName, "de_")
+
+		baseName := strings.Split(basename, "-")
+		// testtest := strings.Split(basename, "vs")
+		testname := ""
+		for i := range len(baseName) - 2 {
+			// fmt.Println(baseName[i])
+			if i == 0 {
+				testname = baseName[i]
+			} else {
+
+				testname = testname + "-" + baseName[i]
+			}
+		}
+		// fmt.Println(testname)
+		split := strings.Split(testname, "-vs-")
+		// fmt.Println(split)
+		teams := make(map[string]string)
+		data, err := os.ReadFile(teamsFile)
+		if err == nil {
+			json.Unmarshal(data, &teams)
+		}
+		teamOne := teams[split[0]]
+		teamTwo := teams[split[1]]
+		testname = teamOne + "_" + teamTwo
+		pbFilename := filepath.Join(killsDir, fmt.Sprintf("%s_%s_%s_team-%s_side-%s_player-%s.pb", timestampPrefix, testname, mapNameTrim, teamID, side, playerID))
 
 		err = WritePos(pbFilename, marshaled)
 		if err != nil {
