@@ -31,8 +31,13 @@ func main() {
 	flag.Parse()
 
 	if *isNewFeature {
-		filter := filters.Filter{Player: "jame"}
-		filter.ResolveFilter()
+		filter := filters.Filter{Player: *playerFlag, Side: *sideFlag, Map: *mapFlag, Team: *teamFlag}
+		// fmt.Println(*sideFlag, *mapFlag, *playerFlag, *teamFlag)
+		matches, err := filter.ResolveFilter()
+		if err != nil {
+			log.Fatal(matches, err)
+		}
+		fmt.Println(matches, err)
 		return
 	}
 

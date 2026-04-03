@@ -7,6 +7,7 @@ package filters
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -33,13 +34,24 @@ type Filter struct {
 	Team     string
 }
 
-func (f Filter) ResolveFilter() string {
-	playerName := strings.ToLower(f.Player)
+func (f Filter) ResolveFilter() ([]string, error) {
+	var playerName, player32 string
+	if f.Player != "" {
+		var err error
+		playerName = strings.ToLower(f.Player)
+		player32, err = playerTo32(playerName)
+		if err != nil {
+			return []string{}, err
+		}
+	} else if f.Player == "" {
+		player32 = "*"
+	}
+	// playerName := strings.ToLower(f.Player)
 	// mapName := strings.ToLower(f.Map)
 	// teamName := strings.ToLower(f.Team)
-	ans1 := playerTo32(playerName)
-	fmt.Println(ans1)
-	stringy := fmt.Sprintf("%s/%s_%s_%s_%s_%s_team-%s_side-%s_player-%s*.pb", killsDir, "*", "*", "*", "*", "*", "*", "*", ans1)
+	// player32 = playerTo32(playerName)
+	fmt.Println(player32)
+	stringy := fmt.Sprintf("%s/%s_%s_%s_%s_%s_team-%s_side-%s_player-%s.pb", killsDir, "*", "*", "*", "*", "*", "*", "*", player32)
 	fmt.Println(stringy)
 	// I think the way the data is stored/fetched is fundamentally bad
 	// A goal was not to use SQL of any kind so I'll stick to that
@@ -64,23 +76,26 @@ func (f Filter) ResolveFilter() string {
 	// I imagine this would be easy to "inject" or abuse which would mean
 	// I'd have to implement some verification or something so someone doesn't
 	// request the entire database or something idk.
-	return "0"
+	return matches, nil
 }
 
-func playerTo32(name string) string {
+var PlayerFileError = errors.New("Error opening players.json")
+var PlayerNotFound = errors.New("No player found with that name")
+
+func playerTo32(name string) (string, error) {
 	players := make(map[string]rw.PlayerInfo)
 	name = strings.ToLower(name)
 	file, err := os.ReadFile(playersFile)
 	if err != nil {
-		log.Fatalln(err)
+		return "", PlayerFileError
 	}
 	err = json.Unmarshal(file, &players)
 	// fmt.Println(players)
 	// fmt.Println(players["81417650"])
 	for id, info := range players {
 		if strings.ToLower(info.Name) == name {
-			return id
+			return id, nil
 		}
 	}
-	return "0"
+	return "", PlayerNotFound
 }
