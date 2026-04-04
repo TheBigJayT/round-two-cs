@@ -7,7 +7,7 @@
 # ignoring all protobuf .pb
 *.pb
 
-# ignore pings
+# ignoring pings
 *.png
 
 # ignoring 

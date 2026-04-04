@@ -9,6 +9,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	internal "github.com/TheBigJayT/round-two-cs/internal"
+	filters "github.com/TheBigJayT/round-two-cs/internal/filters"
 	rw "github.com/TheBigJayT/round-two-cs/internal/readwrite"
 
 	"github.com/golang/geo/r3"
@@ -30,12 +32,35 @@ func main() {
 	flag.Parse()
 
 	if *isNewFeature {
-		mapFilter := strings.ToLower(*mapFlag)
-		info, err := rw.GetMapInfo(mapFilter)
+		filter := filters.Filter{Player: *playerFlag, Side: *sideFlag, Map: *mapFlag, Team: *teamFlag}
+		// fmt.Println(*sideFlag, *mapFlag, *playerFlag, *teamFlag)
+		matches, err := filter.ResolveFilter()
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Println(info.PosX, info.PosY, info.Scale, info.Rotate)
+		fmt.Println(matches)
+		// for _, match := range matches {
+		// 	list, _ := rw.ReadKills(match)
+		// 	for _, j := range list.GetKills() {
+		// 		fmt.Println(j.VictimName, "(", j.KillerX, j.KillerY, j.KillerZ, ")")
+		// 	}
+		// }
+		// fmt.Println(matches, err)
+		return
+	}
+
+	if *mode == "read" {
+		filter := filters.Filter{Player: *playerFlag, Side: *sideFlag, Map: *mapFlag, Team: *teamFlag}
+		matches, err := filter.ResolveFilter()
+		if err != nil {
+			log.Fatal(err)
+		}
+		for _, match := range matches {
+			list, _ := rw.ReadKills(match)
+			for _, j := range list.GetKills() {
+				fmt.Printf("%-20s killed\t%-20s using %-20s\n", j.GetKillerName(), j.GetVictimName(), j.GetWeapon())
+			}
+		}
 		return
 	}
 
@@ -110,7 +135,7 @@ func main() {
 			// Search data/players.json by name
 			data, err := os.ReadFile("data/players.json")
 			if err == nil {
-				var players map[string]rw.PlayerInfo
+				var players map[string]internal.PlayerInfo
 				json.Unmarshal(data, &players)
 				nameLower := strings.ToLower(*playerFlag)
 				for id, info := range players {

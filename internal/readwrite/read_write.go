@@ -11,13 +11,13 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/TheBigJayT/round-two-cs/protos"
-
-	demos "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs"
+	"github.com/djherbis/times"
 	"google.golang.org/protobuf/proto"
 
-	"github.com/djherbis/times"
-	// ex "github.com/markus-wa/demoinfocs-golang/v5/examples"
+	internal "github.com/TheBigJayT/round-two-cs/internal"
+	protos "github.com/TheBigJayT/round-two-cs/protos"
+
+	demos "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs"
 	events "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/events"
 	msg "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/msg"
 )
@@ -29,22 +29,6 @@ const (
 	matchesFile = "data/matches.jsonl"
 	mapsFile    = "data/minimap.json"
 )
-
-// PlayerInfo is the value stored in data/players.json, keyed by SteamID32 string.
-type PlayerInfo struct {
-	Name    string `json:"name"`
-	SteamID uint32 `json:"steam_id"`
-}
-
-type MapInfo struct {
-	PosX   int     `json:"pos_x"`
-	PosY   int     `json:"pos_y"`
-	PixelX int     `json:"pixel_x"`
-	PixelY int     `json:"pixel_y"`
-	Scale  float32 `json:"scale"`
-	Rotate int     `json:"rotate"`
-	Zoom   int     `json:"zoom"`
-}
 
 // PlayerMetadata is the per-player record inside MatchMetadata.Players.
 // The map is keyed by SteamID32 string (e.g. "76561198...").
@@ -65,7 +49,7 @@ type MatchMetadata struct {
 var MapNotFound = errors.New("Map info not found")
 
 func TestReadMapInfo() {
-	maps := make(map[string]MapInfo)
+	maps := make(map[string]internal.MapInfo)
 
 	data, err := os.ReadFile(mapsFile)
 	if err == nil {
@@ -91,12 +75,12 @@ func TestReadMapInfo() {
 
 // GetMapInfo accepts a map name in the form "de_XXXXX" or "XXXXX" as input
 // and returns a MapInfo struct and an error.
-func GetMapInfo(mapName string) (mapInfo MapInfo, err error) {
+func GetMapInfo(mapName string) (mapInfo internal.MapInfo, err error) {
 	mapName = strings.TrimPrefix(strings.ToLower(mapName), "de_")
-	maps := make(map[string]MapInfo)
+	maps := make(map[string]internal.MapInfo)
 	data, err := os.ReadFile(mapsFile)
 	if err != nil {
-		return MapInfo{}, err
+		return internal.MapInfo{}, err
 	} else {
 		json.Unmarshal(data, &maps)
 	}
@@ -106,7 +90,7 @@ func GetMapInfo(mapName string) (mapInfo MapInfo, err error) {
 			return info, nil
 		}
 	}
-	return MapInfo{}, MapNotFound
+	return internal.MapInfo{}, MapNotFound
 }
 
 func ReadPos(filename string) (*protos.Positions, error) {
@@ -256,7 +240,7 @@ func ExtractKillsData(filename string) error {
 	getPlayerID := func(steamID32 uint32, playerName string) string {
 		idStr := fmt.Sprintf("%d", steamID32)
 
-		players := make(map[string]PlayerInfo)
+		players := make(map[string]internal.PlayerInfo)
 
 		data, err := os.ReadFile(playersFile)
 		if err == nil {
@@ -264,7 +248,7 @@ func ExtractKillsData(filename string) error {
 		}
 
 		// Always update the name in case it changed (e.g. player renamed)
-		players[idStr] = PlayerInfo{
+		players[idStr] = internal.PlayerInfo{
 			Name:    playerName,
 			SteamID: steamID32,
 		}
@@ -286,7 +270,7 @@ func ExtractKillsData(filename string) error {
 	})
 
 	var mapName string
-	var mapInfo MapInfo
+	var mapInfo internal.MapInfo
 	demo.RegisterNetMessageHandler(func(m *msg.CDemoFileHeader) {
 		mapName = m.GetMapName()
 		mapInfo, err = GetMapInfo(mapName)
@@ -398,7 +382,32 @@ func ExtractKillsData(filename string) error {
 		}
 
 		// Format: data/kills/{YYYYMMDD_HHMMSS}_{demoname}_team-{teamID}_side-{side}_player-{steamID32}.pb
-		pbFilename := filepath.Join(killsDir, fmt.Sprintf("%s_%s_team-%s_side-%s_player-%s.pb", timestampPrefix, basename, teamID, side, playerID))
+		mapNameTrim, _ := strings.CutPrefix(mapName, "de_")
+
+		baseName := strings.Split(basename, "-")
+		// testtest := strings.Split(basename, "vs")
+		testname := ""
+		for i := range len(baseName) - 2 {
+			// fmt.Println(baseName[i])
+			if i == 0 {
+				testname = baseName[i]
+			} else {
+
+				testname = testname + "-" + baseName[i]
+			}
+		}
+		// fmt.Println(testname)
+		split := strings.Split(testname, "-vs-")
+		// fmt.Println(split)
+		teams := make(map[string]string)
+		data, err := os.ReadFile(teamsFile)
+		if err == nil {
+			json.Unmarshal(data, &teams)
+		}
+		teamOne := teams[split[0]]
+		teamTwo := teams[split[1]]
+		testname = teamOne + "_" + teamTwo
+		pbFilename := filepath.Join(killsDir, fmt.Sprintf("%s_%s_%s_team-%s_side-%s_player-%s.pb", timestampPrefix, testname, mapNameTrim, teamID, side, playerID))
 
 		err = WritePos(pbFilename, marshaled)
 		if err != nil {
