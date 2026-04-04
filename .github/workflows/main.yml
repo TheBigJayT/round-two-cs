@@ -1,0 +1,2 @@
+- name: Go License Checker
+  uses: yusufpapurcu/go-license-checker@v0.9
