@@ -1,12 +1,14 @@
-on: pull_request
-
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 jobs:
   license-check:
     runs-on: ubuntu-latest
-    name: License Check
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
+      - uses: actions/checkout@v4    
+      - uses: joeig/go-licenses-action@v1
         with:
-          go-version: '1.26.1'
-      - uses: yusufpapurcu/go-license-checker@v0.5
+          # Optional: Specify disallowed license types
+          disallowed-types: 'forbidden,unknown'
