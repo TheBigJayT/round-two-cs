@@ -18,6 +18,7 @@ import (
 
 	"github.com/djherbis/times"
 	// ex "github.com/markus-wa/demoinfocs-golang/v5/examples"
+	internal "github.com/TheBigJayT/round-two-cs/internal"
 	events "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/events"
 	msg "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/msg"
 )
@@ -29,22 +30,6 @@ const (
 	matchesFile = "data/matches.jsonl"
 	mapsFile    = "data/minimap.json"
 )
-
-// PlayerInfo is the value stored in data/players.json, keyed by SteamID32 string.
-type PlayerInfo struct {
-	Name    string `json:"name"`
-	SteamID uint32 `json:"steam_id"`
-}
-
-type MapInfo struct {
-	PosX   int     `json:"pos_x"`
-	PosY   int     `json:"pos_y"`
-	PixelX int     `json:"pixel_x"`
-	PixelY int     `json:"pixel_y"`
-	Scale  float32 `json:"scale"`
-	Rotate float32 `json:"rotate"`
-	Zoom   float32 `json:"zoom"`
-}
 
 // PlayerMetadata is the per-player record inside MatchMetadata.Players.
 // The map is keyed by SteamID32 string (e.g. "76561198...").
@@ -65,7 +50,7 @@ type MatchMetadata struct {
 var MapNotFound = errors.New("Map info not found")
 
 func TestReadMapInfo() {
-	maps := make(map[string]MapInfo)
+	maps := make(map[string]internal.MapInfo)
 
 	data, err := os.ReadFile(mapsFile)
 	if err == nil {
@@ -91,12 +76,12 @@ func TestReadMapInfo() {
 
 // GetMapInfo accepts a map name in the form "de_XXXXX" or "XXXXX" as input
 // and returns a MapInfo struct and an error.
-func GetMapInfo(mapName string) (mapInfo MapInfo, err error) {
+func GetMapInfo(mapName string) (mapInfo internal.MapInfo, err error) {
 	mapName = strings.TrimPrefix(strings.ToLower(mapName), "de_")
-	maps := make(map[string]MapInfo)
+	maps := make(map[string]internal.MapInfo)
 	data, err := os.ReadFile(mapsFile)
 	if err != nil {
-		return MapInfo{}, err
+		return internal.MapInfo{}, err
 	} else {
 		json.Unmarshal(data, &maps)
 	}
@@ -106,7 +91,7 @@ func GetMapInfo(mapName string) (mapInfo MapInfo, err error) {
 			return info, nil
 		}
 	}
-	return MapInfo{}, MapNotFound
+	return internal.MapInfo{}, MapNotFound
 }
 
 func ReadPos(filename string) (*protos.Positions, error) {
@@ -256,7 +241,7 @@ func ExtractKillsData(filename string) error {
 	getPlayerID := func(steamID32 uint32, playerName string) string {
 		idStr := fmt.Sprintf("%d", steamID32)
 
-		players := make(map[string]PlayerInfo)
+		players := make(map[string]internal.PlayerInfo)
 
 		data, err := os.ReadFile(playersFile)
 		if err == nil {
@@ -264,7 +249,7 @@ func ExtractKillsData(filename string) error {
 		}
 
 		// Always update the name in case it changed (e.g. player renamed)
-		players[idStr] = PlayerInfo{
+		players[idStr] = internal.PlayerInfo{
 			Name:    playerName,
 			SteamID: steamID32,
 		}
@@ -286,7 +271,7 @@ func ExtractKillsData(filename string) error {
 	})
 
 	var mapName string
-	var mapInfo MapInfo
+	var mapInfo internal.MapInfo
 	demo.RegisterNetMessageHandler(func(m *msg.CDemoFileHeader) {
 		mapName = m.GetMapName()
 		mapInfo, err = GetMapInfo(mapName)
