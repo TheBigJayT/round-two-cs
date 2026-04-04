@@ -1,0 +1,18 @@
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+permissions:
+  contents: read
+jobs:
+  license-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4    
+      - uses: joeig/go-licenses-action@v1
+        with:
+          disallowed-types: 'forbidden,unknown'
+          ignore-packages: 'github.com/TheBigJayT/round-two-cs/internal,github.com/TheBigJayT/round-two-cs/internal/filters,github.com/TheBigJayT/round-two-cs/internal/readwrite,github.com/TheBigJayT/round-two-cs/cmd/extract,github.com/TheBigJayT/round-two-cs/cmd/server,github.com/TheBigJayT/round-two-cs/protos'
+          include-tests: true
+          confidence-threshold: '0.9'
