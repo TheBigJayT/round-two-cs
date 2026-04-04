@@ -12,6 +12,7 @@ jobs:
       - uses: actions/checkout@v4    
       - uses: joeig/go-licenses-action@v1
         with:
-          # Optional: Specify disallowed license types
           disallowed-types: 'forbidden,unknown'
-          ignore: 'github.com/TheBigJayT/round-two-cs/internal,github.com/TheBigJayT/round-two-cs/internal/filters,github.com/TheBigJayT/round-two-cs/internal/readwrite,github.com/TheBigJayT/round-two-cs/cmd/extract,github.com/TheBigJayT/round-two-cs/cmd/server,github.com/TheBigJayT/round-two-cs/protos'
+          ignore-packages: 'github.com/TheBigJayT/round-two-cs/internal,github.com/TheBigJayT/round-two-cs/internal/filters,github.com/TheBigJayT/round-two-cs/internal/readwrite,github.com/TheBigJayT/round-two-cs/cmd/extract,github.com/TheBigJayT/round-two-cs/cmd/server,github.com/TheBigJayT/round-two-cs/protos'
+          include-tests: true
+          confidence-threshold: '0.9'
