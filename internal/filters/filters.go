@@ -14,7 +14,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	rw "github.com/TheBigJayT/round-two-cs/internal/readwrite"
+	internal "github.com/TheBigJayT/round-two-cs/internal"
 )
 
 const (
@@ -125,7 +125,7 @@ var PlayerFileError = errors.New("Error opening players.json")
 var PlayerNotFound = errors.New("No player found with that name")
 
 func playerTo32(name string) (string, error) {
-	players := make(map[string]rw.PlayerInfo)
+	players := make(map[string]internal.PlayerInfo)
 	name = strings.ToLower(name)
 	file, err := os.ReadFile(playersFile)
 	if err != nil {
@@ -143,7 +143,7 @@ func playerTo32(name string) (string, error) {
 var MapNotFound = errors.New("Map not found")
 
 func isMap(mapname string) error {
-	maps := make(map[string]rw.MapInfo)
+	maps := make(map[string]internal.MapInfo)
 	file, err := os.ReadFile(mapsFile)
 	if err != nil {
 		return err

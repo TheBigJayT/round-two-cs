@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	internal "github.com/TheBigJayT/round-two-cs/internal"
 	filters "github.com/TheBigJayT/round-two-cs/internal/filters"
 	rw "github.com/TheBigJayT/round-two-cs/internal/readwrite"
 
@@ -134,7 +135,7 @@ func main() {
 			// Search data/players.json by name
 			data, err := os.ReadFile("data/players.json")
 			if err == nil {
-				var players map[string]rw.PlayerInfo
+				var players map[string]internal.PlayerInfo
 				json.Unmarshal(data, &players)
 				nameLower := strings.ToLower(*playerFlag)
 				for id, info := range players {
