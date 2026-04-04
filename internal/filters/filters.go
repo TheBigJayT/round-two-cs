@@ -86,6 +86,8 @@ func (f Filter) ResolveFilter() ([]string, error) {
 			return []string{}, err
 		}
 
+	} else {
+		playerTeam = "*"
 	}
 
 	// filters not implemented yet go here
