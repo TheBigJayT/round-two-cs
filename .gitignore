@@ -1,1 +1,25 @@
+# ignoring all .txts
 *.txt
+
+# ignoring all demos .dem
+*.dem
+
+# ignoring all protobuf .pb
+*.pb
+
+# ignoring pings
+*.png
+
+# ignoring 
+data/matches.jsonl
+data/players.json
+data/teams.json
+data/minimap.json
+
+
+# ignoring executables
+/main
+/round-two-cs
+
+# other ignores
+backup.md

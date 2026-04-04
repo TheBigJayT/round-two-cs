@@ -1,5 +1,9 @@
 # Round Two CS
 
+## COPYRIGHT DISCLAIMER
+
+Parts of this project contain materials which are owned by Valve Corporation. Any copyright infringement is not intended. This project is purely for individual educational purposes and as such is non-commercial. We believe the use of such materials constitutes Fair Use under section 107 of the Copyright Act of the United States of America. We also believe it to be in accordance with the South African Copyright Act 98 of 1978. For removal please contact us.
+
 ## BUILDING
 
 ```bash
