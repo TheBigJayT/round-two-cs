@@ -11,14 +11,13 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/TheBigJayT/round-two-cs/protos"
-
-	demos "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs"
+	"github.com/djherbis/times"
 	"google.golang.org/protobuf/proto"
 
-	"github.com/djherbis/times"
-	// ex "github.com/markus-wa/demoinfocs-golang/v5/examples"
 	internal "github.com/TheBigJayT/round-two-cs/internal"
+	protos "github.com/TheBigJayT/round-two-cs/protos"
+
+	demos "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs"
 	events "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/events"
 	msg "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs/msg"
 )
