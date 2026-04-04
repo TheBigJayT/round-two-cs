@@ -35,9 +35,31 @@ func main() {
 		// fmt.Println(*sideFlag, *mapFlag, *playerFlag, *teamFlag)
 		matches, err := filter.ResolveFilter()
 		if err != nil {
-			log.Fatal(matches, err)
+			log.Fatal(err)
 		}
-		fmt.Println(matches, err)
+		fmt.Println(matches)
+		// for _, match := range matches {
+		// 	list, _ := rw.ReadKills(match)
+		// 	for _, j := range list.GetKills() {
+		// 		fmt.Println(j.VictimName, "(", j.KillerX, j.KillerY, j.KillerZ, ")")
+		// 	}
+		// }
+		// fmt.Println(matches, err)
+		return
+	}
+
+	if *mode == "read" {
+		filter := filters.Filter{Player: *playerFlag, Side: *sideFlag, Map: *mapFlag, Team: *teamFlag}
+		matches, err := filter.ResolveFilter()
+		if err != nil {
+			log.Fatal(err)
+		}
+		for _, match := range matches {
+			list, _ := rw.ReadKills(match)
+			for _, j := range list.GetKills() {
+				fmt.Printf("%-20s killed\t%-20s using %-20s\n", j.GetKillerName(), j.GetVictimName(), j.GetWeapon())
+			}
+		}
 		return
 	}
 

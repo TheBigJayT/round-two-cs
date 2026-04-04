@@ -25,6 +25,8 @@ const (
 	mapsFile    = "data/minimap.json"
 )
 
+// In the future I expect these will become slices so one can
+// filter by multiple players and teams and maps etc etc.
 type Filter struct {
 	Player   string
 	Map      string
@@ -34,8 +36,10 @@ type Filter struct {
 	Team     string
 }
 
+var NoMatches = errors.New("No files match your filter")
+
 func (f Filter) ResolveFilter() ([]string, error) {
-	var playerName, player32 string
+	var playerName, player32, mapName, teamOne, teamTwo, playerTeam, playerSide, exactDate string
 	if f.Player != "" {
 		var err error
 		playerName = strings.ToLower(f.Player)
@@ -46,33 +50,69 @@ func (f Filter) ResolveFilter() ([]string, error) {
 	} else if f.Player == "" {
 		player32 = "*"
 	}
-	// playerName := strings.ToLower(f.Player)
-	// mapName := strings.ToLower(f.Map)
-	// teamName := strings.ToLower(f.Team)
-	// player32 = playerTo32(playerName)
-	fmt.Println(player32)
-	stringy := fmt.Sprintf("%s/%s_%s_%s_%s_%s_team-%s_side-%s_player-%s.pb", killsDir, "*", "*", "*", "*", "*", "*", "*", player32)
-	fmt.Println(stringy)
-	// I think the way the data is stored/fetched is fundamentally bad
-	// A goal was not to use SQL of any kind so I'll stick to that
-	// I had originally thought it would just search through every file
-	// and find files that matched the filters.
-	// File names would have to be structured (which they are)
 
-	// <date>_<time>_<team_one>-vs-<team_two>_<map>_team-<team_hash>_side-<side>_player-<STEAM32ID>.pb
+	if f.Map != "" {
+		mapName = strings.ToLower(f.Map)
+		mapName, _ = strings.CutPrefix(mapName, "de_")
+		err := isMap(mapName)
+		if err != nil {
+			return []string{}, err
+		}
+		fmt.Println(mapName)
+	} else if f.Map == "" {
+		mapName = "*"
+	}
 
-	// The below block is a bit of a test of that. Why AI didn't use this
-	// I'm not sure... Maybe it's worse, maybe it's better but I'll see...
-	// matches, err := filepath.Glob(killsDir + "/*.pb")
+	if f.DateFrom != "" && f.DateTo != "" {
+		// do something with exact date.
+	}
+
+	if f.Side != "" {
+		side, err := upperSide(f.Side)
+		if err == nil {
+			playerSide = side
+		} else {
+			return []string{}, err
+		}
+	} else {
+		playerSide = "*"
+	}
+
+	// Playing for TEAM
+	if f.Team != "" {
+		var err error
+		playerTeam, err = teamToHash(f.Team)
+		if err != nil {
+			return []string{}, err
+		}
+
+	}
+
+	// filters not implemented yet go here
+	if true {
+		exactDate = "*"
+		teamOne = "*"
+		teamTwo = "*"
+		// playerTeam = "*"
+	}
+	var stringy string
+	// 																		/data/kills/<date>_<time>_<team_one>_<team_two>_<map>_team-<team_hash>_side-<side>_player-<STEAM32ID>.pb
+	stringy = fmt.Sprintf("%s/%s_%s_%s_%s_%s_team-%s_side-%s_player-%s.pb", killsDir, exactDate, "*", teamOne, teamTwo, mapName, playerTeam, playerSide, player32)
+	// fmt.Printf("\n%s\n\n", stringy)
+
 	matches, err := filepath.Glob(stringy)
 	if err != nil {
 		log.Fatal(err)
 	}
-	for _, match := range matches {
-		matchNoPrefix, _ := strings.CutPrefix(match, "data/kills/")
-
-		fmt.Println(strings.Split(matchNoPrefix, "_"))
+	if len(matches) == 0 {
+		return matches, NoMatches
 	}
+	// for _, match := range matches {
+	// 	matchNoPrefix, _ := strings.CutPrefix(match, "data/kills/")
+	// 	// for the moment this prints the file paths.
+	// 	fmt.Println(strings.Split(matchNoPrefix, "_"))
+	// }
+	// fmt.Println(len(matches))
 	// I imagine this would be easy to "inject" or abuse which would mean
 	// I'd have to implement some verification or something so someone doesn't
 	// request the entire database or something idk.
@@ -90,12 +130,56 @@ func playerTo32(name string) (string, error) {
 		return "", PlayerFileError
 	}
 	err = json.Unmarshal(file, &players)
-	// fmt.Println(players)
-	// fmt.Println(players["81417650"])
 	for id, info := range players {
 		if strings.ToLower(info.Name) == name {
 			return id, nil
 		}
 	}
 	return "", PlayerNotFound
+}
+
+var MapNotFound = errors.New("Map not found")
+
+func isMap(mapname string) error {
+	maps := make(map[string]rw.MapInfo)
+	file, err := os.ReadFile(mapsFile)
+	if err != nil {
+		return err
+	}
+	err = json.Unmarshal(file, &maps)
+	for k := range maps {
+		if strings.EqualFold(strings.TrimPrefix(mapname, "de_"), strings.TrimPrefix(k, "de_")) {
+			return nil
+		}
+	}
+	return MapNotFound
+}
+
+var SideNotValid = errors.New("That is not a valid side. (T or CT).")
+
+func upperSide(side string) (string, error) {
+	side = strings.ToUpper(side)
+	switch side {
+	case "T":
+		return "T", nil
+	case "CT":
+		return "CT", nil
+	default:
+		return "", SideNotValid
+	}
+}
+
+var TeamNotFound = errors.New("Team not found in database")
+
+func teamToHash(team string) (string, error) {
+	file, err := os.ReadFile(teamsFile)
+	if err != nil {
+		return "", err
+	}
+	var teams = make(map[string]string)
+	err = json.Unmarshal(file, &teams)
+	if teams[team] != "" {
+		return teams[team], nil
+	}
+	return "", TeamNotFound
 }

@@ -42,8 +42,8 @@ type MapInfo struct {
 	PixelX int     `json:"pixel_x"`
 	PixelY int     `json:"pixel_y"`
 	Scale  float32 `json:"scale"`
-	Rotate int     `json:"rotate"`
-	Zoom   int     `json:"zoom"`
+	Rotate float32 `json:"rotate"`
+	Zoom   float32 `json:"zoom"`
 }
 
 // PlayerMetadata is the per-player record inside MatchMetadata.Players.
