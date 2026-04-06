@@ -587,3 +587,41 @@ func PrintDemo(filename string) error {
 
 	return nil
 }
+
+func ToCSV(filenameList []string) error {
+	var playerMap = make(map[string][]*protos.KillData)
+	for _, filename := range filenameList {
+
+		data, err := os.ReadFile(filename)
+		if err != nil {
+			return err
+		}
+		kills := &protos.KillDataList{}
+		err = proto.Unmarshal(data, kills)
+		if err != nil {
+			return err
+		}
+		for _, j := range kills.GetKills() {
+
+			playerMap[j.KillerName] = append(playerMap[j.KillerName], j)
+		}
+	}
+	var total int
+	fmt.Printf("%s\n", strings.Repeat("-", 30))
+	for player, killsInMap := range playerMap {
+		fmt.Printf("%-20s %-20d\n", player, len(killsInMap))
+		total += len(killsInMap)
+	}
+	fmt.Printf("%s\n%-20s %-20d\n", strings.Repeat("-", 30), "Total", total)
+
+	// Use this if you need to debug this thing or something like that.
+
+	// var total uint32
+	// for player, value := range playerMap {
+	// 	fmt.Println(player, value)
+	// 	total = total + uint32(len(value))
+	// }
+	// fmt.Println(total)
+
+	return nil
+}

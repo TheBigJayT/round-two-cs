@@ -33,19 +33,14 @@ func main() {
 
 	if *isNewFeature {
 		filter := filters.Filter{Player: *playerFlag, Side: *sideFlag, Map: *mapFlag, Team: *teamFlag}
-		// fmt.Println(*sideFlag, *mapFlag, *playerFlag, *teamFlag)
 		matches, err := filter.ResolveFilter()
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Println(matches)
-		// for _, match := range matches {
-		// 	list, _ := rw.ReadKills(match)
-		// 	for _, j := range list.GetKills() {
-		// 		fmt.Println(j.VictimName, "(", j.KillerX, j.KillerY, j.KillerZ, ")")
-		// 	}
-		// }
-		// fmt.Println(matches, err)
+		testerr := rw.ToCSV(matches)
+		if testerr != nil {
+			log.Fatal(testerr)
+		}
 		return
 	}
 
