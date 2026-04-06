@@ -282,6 +282,7 @@ func ExtractKillsData(filename string) error {
 	demo.RegisterEventHandler(func(e events.Kill) {
 		killer := e.Killer
 		dead := e.Victim
+		assister := e.Assister
 		selfKill := killer == dead
 		if matchStarted {
 
@@ -312,7 +313,12 @@ func ExtractKillsData(filename string) error {
 
 				teamID := getTeamID(killerTeamName)
 				playerID := getPlayerID(killer.SteamID32(), killer.Name)
-
+				var assisterName string
+				if assister == nil {
+					assisterName = ""
+				} else {
+					assisterName = assister.Name
+				}
 				killData := &protos.KillData{
 					KillerName:   killer.Name,
 					KillerID:     int32(killer.SteamID32()),
@@ -331,6 +337,7 @@ func ExtractKillsData(filename string) error {
 					RoundNum:     int32(demo.GameState().TotalRoundsPlayed()),
 					KillerTeam:   killerTeamName,
 					KillerTeamID: teamID,
+					AssisterName: assisterName,
 				}
 
 				// Map key: playerID (SteamID32) | playerName | teamID | side  — always unique per player per side

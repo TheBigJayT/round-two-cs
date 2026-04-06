@@ -24,6 +24,14 @@ message KillData {
     int32 RoundNum = 13;
     string KillerTeam = 14;
     string KillerTeamID = 15;
+
+    string KillerSide = 20;
+    string VictimSide = 21;
+
+    string AssisterName = 22;
+    int32 AssisterID = 23;
+    bool isAssist = 24;
+    string AssisterSide = 25;
 }
 
 message KillDataList {

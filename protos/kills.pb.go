@@ -42,6 +42,12 @@ type KillData struct {
 	RoundNum      int32                  `protobuf:"varint,13,opt,name=RoundNum,proto3" json:"RoundNum,omitempty"`
 	KillerTeam    string                 `protobuf:"bytes,14,opt,name=KillerTeam,proto3" json:"KillerTeam,omitempty"`
 	KillerTeamID  string                 `protobuf:"bytes,15,opt,name=KillerTeamID,proto3" json:"KillerTeamID,omitempty"`
+	KillerSide    string                 `protobuf:"bytes,20,opt,name=KillerSide,proto3" json:"KillerSide,omitempty"`
+	VictimSide    string                 `protobuf:"bytes,21,opt,name=VictimSide,proto3" json:"VictimSide,omitempty"`
+	AssisterName  string                 `protobuf:"bytes,22,opt,name=AssisterName,proto3" json:"AssisterName,omitempty"`
+	AssisterID    int32                  `protobuf:"varint,23,opt,name=AssisterID,proto3" json:"AssisterID,omitempty"`
+	IsAssist      bool                   `protobuf:"varint,24,opt,name=isAssist,proto3" json:"isAssist,omitempty"`
+	AssisterSide  string                 `protobuf:"bytes,25,opt,name=AssisterSide,proto3" json:"AssisterSide,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -209,6 +215,48 @@ func (x *KillData) GetKillerTeamID() string {
 	return ""
 }
 
+func (x *KillData) GetKillerSide() string {
+	if x != nil {
+		return x.KillerSide
+	}
+	return ""
+}
+
+func (x *KillData) GetVictimSide() string {
+	if x != nil {
+		return x.VictimSide
+	}
+	return ""
+}
+
+func (x *KillData) GetAssisterName() string {
+	if x != nil {
+		return x.AssisterName
+	}
+	return ""
+}
+
+func (x *KillData) GetAssisterID() int32 {
+	if x != nil {
+		return x.AssisterID
+	}
+	return 0
+}
+
+func (x *KillData) GetIsAssist() bool {
+	if x != nil {
+		return x.IsAssist
+	}
+	return false
+}
+
+func (x *KillData) GetAssisterSide() string {
+	if x != nil {
+		return x.AssisterSide
+	}
+	return ""
+}
+
 type KillDataList struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Kills         []*KillData            `protobuf:"bytes,1,rep,name=Kills,proto3" json:"Kills,omitempty"`
@@ -257,7 +305,7 @@ var File_protos_kills_proto protoreflect.FileDescriptor
 
 const file_protos_kills_proto_rawDesc = "" +
 	"\n" +
-	"\x12protos/kills.proto\"\xc6\x04\n" +
+	"\x12protos/kills.proto\"\x8a\x06\n" +
 	"\bKillData\x12\x1e\n" +
 	"\n" +
 	"KillerName\x18\x01 \x01(\tR\n" +
@@ -286,7 +334,19 @@ const file_protos_kills_proto_rawDesc = "" +
 	"\n" +
 	"KillerTeam\x18\x0e \x01(\tR\n" +
 	"KillerTeam\x12\"\n" +
-	"\fKillerTeamID\x18\x0f \x01(\tR\fKillerTeamID\"/\n" +
+	"\fKillerTeamID\x18\x0f \x01(\tR\fKillerTeamID\x12\x1e\n" +
+	"\n" +
+	"KillerSide\x18\x14 \x01(\tR\n" +
+	"KillerSide\x12\x1e\n" +
+	"\n" +
+	"VictimSide\x18\x15 \x01(\tR\n" +
+	"VictimSide\x12\"\n" +
+	"\fAssisterName\x18\x16 \x01(\tR\fAssisterName\x12\x1e\n" +
+	"\n" +
+	"AssisterID\x18\x17 \x01(\x05R\n" +
+	"AssisterID\x12\x1a\n" +
+	"\bisAssist\x18\x18 \x01(\bR\bisAssist\x12\"\n" +
+	"\fAssisterSide\x18\x19 \x01(\tR\fAssisterSide\"/\n" +
 	"\fKillDataList\x12\x1f\n" +
 	"\x05Kills\x18\x01 \x03(\v2\t.KillDataR\x05KillsB+Z)github.com/TheBigJayT/round-two-cs/protosb\x06proto3"
 

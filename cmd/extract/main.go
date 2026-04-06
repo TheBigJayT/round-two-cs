@@ -60,7 +60,7 @@ func main() {
 			list, _ := rw.ReadKills(match)
 			for _, j := range list.GetKills() {
 				count++
-				fmt.Printf("%-20s killed\t%-20s using %-20s\n", j.GetKillerName(), j.GetVictimName(), j.GetWeapon())
+				fmt.Printf("%-20s killed %-20s using %-20s assisted by %-20s\n", j.GetKillerName(), j.GetVictimName(), j.GetWeapon(), j.GetAssisterName())
 			}
 		}
 		fmt.Println("\x1b[1;31mKills: ", count)
