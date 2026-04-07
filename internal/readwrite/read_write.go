@@ -314,10 +314,18 @@ func ExtractKillsData(filename string) error {
 				teamID := getTeamID(killerTeamName)
 				playerID := getPlayerID(killer.SteamID32(), killer.Name)
 				var assisterName string
+
 				if assister == nil {
 					assisterName = ""
 				} else {
 					assisterName = assister.Name
+					if assister.Team == dead.Team {
+						assisterName = ""
+					}
+
+				}
+				if e.AssistedFlash {
+					assisterName = ""
 				}
 				killData := &protos.KillData{
 					KillerName:   killer.Name,
@@ -607,19 +615,28 @@ func ToCSV(filenameList []string) error {
 		}
 	}
 	var total int
+	var assists int
 	fmt.Printf("%s\n", strings.Repeat("-", 30))
 	for player, killsInMap := range playerMap {
+		// numKills := 0
+		// numAssists := 0
+		// numDeaths := 0
 		fmt.Printf("%-20s %-20d\n", player, len(killsInMap))
 		total += len(killsInMap)
+		for _, j := range killsInMap {
+			if j.AssisterName != "" {
+				assists += 1
+			}
+		}
 	}
-	fmt.Printf("%s\n%-20s %-20d\n", strings.Repeat("-", 30), "Total", total)
+	fmt.Printf("%s\n%-20s %-20d\n", strings.Repeat("-", 30), "Total Kills", total)
+	fmt.Printf("%-20s %-20d\n", "Total Assists", assists)
 
 	// Use this if you need to debug this thing or something like that.
 
-	// var total uint32
 	// for player, value := range playerMap {
 	// 	fmt.Println(player, value)
-	// 	total = total + uint32(len(value))
+	// 	total = total + len(value)
 	// }
 	// fmt.Println(total)
 
